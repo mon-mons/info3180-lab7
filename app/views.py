@@ -57,6 +57,14 @@ def send_text_file(file_name):
     return app.send_static_file(file_dot_text)
 
 
+
+@app.route('/api/upload')
+def  upload(file_name):
+    """   """
+    uploadform= UploadForm()
+    if request.method=='POST' and uploadform.validate_on_submit():  
+          
+
 @app.after_request
 def add_header(response):
     """
