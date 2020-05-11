@@ -60,8 +60,8 @@ def send_text_file(file_name):
 
 
 
-@app.route('/api/upload')
-def  upload(file_name):
+@app.route('/api/upload', methods = ['POST','GET'])
+def  upload():
     """   """
     uploadform= UploadForm()
     if request.method=='POST' and uploadform.validate_on_submit(): 
@@ -74,15 +74,15 @@ def  upload(file_name):
         ))
         form_info={    
              "message": "File Upload Successful" ,  
-              "filename": "you-uploaded-file.jpg" ,
-               "description": "Some description for your image"
+              "filename": filename,
+               "description": description
         }
         return jsonify(form_info=form_info)
     else:
         the_errors= {
             "errors": form_errors(uploadform)
-            }
-    return jsonify(the_errors=the_errors)
+        }
+        return jsonify(the_errors=the_errors)
 
 @app.after_request
 def add_header(response):
