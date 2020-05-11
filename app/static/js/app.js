@@ -33,24 +33,44 @@ Vue.component('app-footer', {
 
 const Uploadform=Vue.component('upload-form', {
     template: `
-    <form id="uploadForm" @submit.prevent="uploadPhoto" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="description">Description</label> 
-            <textarea class="form-control" id="description" name="description"></textarea>
+    <div>
+        <div v-if="errorflag=='true'" class="alert alert-danger" role="alert"> 
+            <ul>
+                <li v-for="error in errors"> {{ error }}</li>
+            </ul>
         </div>
-        
-        <div class="form-group">
-            <label for="photo">Profile Photo</label>
-            <input class="form-control" id="photo" name="photo" type="file">
-        </div>
-        <button type="submit" name="submit" id="uploadButton">Upload</button>
-    </form>
+
+        <div v-if="errorflag=='false'" class="alert alert-success" role="alert">
+            Success! Your photo has been succcesfully uploaded. 
+        </div> 
+        <form id="uploadForm" @submit.prevent="uploadPhoto" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="description">Description</label> 
+                <textarea class="form-control" id="description" name="description"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="photo">Profile Photo</label>
+                <input class="form-control" id="photo" name="photo" type="file">
+            </div>
+            <button type="submit" name="submit" id="uploadButton">Upload</button>
+        </form>
+    </div>
 
     `, 
+
+    data : function() {
+        return {
+            errorflag: "",
+            errors: [],
+        }
+
+    },
     methods:  {
         uploadPhoto: function() {
             let uploadForm = document.getElementById('uploadForm');
             let form_data = new FormData(uploadForm); 
+            let self = this;
             fetch("/api/upload", {
                 method: 'POST',
                 body: form_data,
@@ -60,15 +80,20 @@ const Uploadform=Vue.component('upload-form', {
                 credentials: 'same-origin' 
             })
             .then(function (response) {
-            return response.json();
+                return response.json();
             })
             .then(function (jsonResponse) {
-            // display a success message
-            console.log(jsonResponse);
-
+                // display a success message
+                console.log(jsonResponse);
+                if(jsonResponse.hasOwnProperty('the_errors')) {
+                    self.errors = jsonResponse.the_errors.errors;
+                    self.errorflag = 'true';
+                } else {
+                    self.errorflag = 'false';
+                }
             })
             .catch(function (error) {
-            console.log(error);
+                console.log(error);
             });
             
         }
